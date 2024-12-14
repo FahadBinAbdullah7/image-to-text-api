@@ -3,63 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Convert images to text online with our free, fast, and simple OCR tool.">
+    <meta name="keywords" content="Image to Text Converter, OCR Tool, Extract Text from Image, Free Online OCR">
     <title>Image to Text Converter</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        #output {
+            white-space: pre-wrap;
+            background: #f1f1f1;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            overflow: auto;
+            max-height: 300px;
+        }
+
+        .loader {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid #007bff;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+            display: none;
+            margin: auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
     <div class="container mt-5">
         <h1>Image to Text Converter</h1>
-        <p>Extract text from image URLs using this OCR tool.</p>
+        <p>Extract text from an image URL using this OCR tool.</p>
+
         <div class="input-group mb-3">
             <input type="text" class="form-control" id="imageUrl" placeholder="Enter public image URL">
             <div class="input-group-append">
-                <button class="btn btn-primary" id="extractBtn">Extract Text</button>
+                <button class="btn btn-primary" id="convertBtn">Convert</button>
                 <button class="btn btn-secondary" id="clearBtn">Clear</button>
             </div>
         </div>
-        <div id="loader" style="display:none;">Loading...</div>
-        <pre id="output" class="mt-4"></pre>
+
+        <div class="loader" id="loader"></div>
+        <div id="output" class="mt-4"></div>
     </div>
 
     <script>
-        document.getElementById("extractBtn").addEventListener("click", async () => {
-            const imageUrl = document.getElementById("imageUrl").value;
+        document.addEventListener("DOMContentLoaded", () => {
+            const convertBtn = document.getElementById("convertBtn");
+            const clearBtn = document.getElementById("clearBtn");
             const output = document.getElementById("output");
             const loader = document.getElementById("loader");
+            const imageUrlInput = document.getElementById("imageUrl");
 
-            if (!imageUrl) {
-                alert("Please provide an image URL.");
-                return;
-            }
-
-            loader.style.display = "block";
-            output.textContent = "";
-
-            try {
-                const response = await fetch("/api/backend", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ imageUrl }),
-                });
-
-                const data = await response.json();
-                loader.style.display = "none";
-
-                if (response.ok) {
-                    output.textContent = data.text;
-                } else {
-                    output.textContent = `Error: ${data.error}`;
+            convertBtn.addEventListener("click", async () => {
+                const imageUrl = imageUrlInput.value.trim();
+                if (!imageUrl) {
+                    alert("Please enter a valid image URL!");
+                    return;
                 }
-            } catch (err) {
-                loader.style.display = "none";
-                output.textContent = "An error occurred. Please try again.";
-                console.error(err);
-            }
-        });
 
-        document.getElementById("clearBtn").addEventListener("click", () => {
-            document.getElementById("imageUrl").value = "";
-            document.getElementById("output").textContent = "";
+                loader.style.display = "block";
+                output.textContent = "";
+
+                try {
+                    const response = await fetch("/api/extract", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ imageUrl }),
+                    });
+
+                    const result = await response.json();
+                    loader.style.display = "none";
+
+                    if (response.ok) {
+                        output.textContent = result.text;
+                    } else {
+                        output.textContent = `Error: ${result.error}`;
+                    }
+                } catch (error) {
+                    loader.style.display = "none";
+                    output.textContent = "An error occurred. Please try again.";
+                    console.error(error);
+                }
+            });
+
+            clearBtn.addEventListener("click", () => {
+                imageUrlInput.value = "";
+                output.textContent = "";
+            });
         });
     </script>
 </body>
