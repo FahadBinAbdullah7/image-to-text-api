@@ -3,8 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Convert images to text online with our free, fast, and simple OCR tool.">
-    <meta name="keywords" content="Image to Text Converter, OCR Tool, Extract Text from Image, Free Online OCR">
     <title>Image to Text Converter</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -42,8 +40,7 @@
 <body>
     <div class="container mt-5">
         <h1>Image to Text Converter</h1>
-        <p>Extract text from an image URL using this OCR tool.</p>
-
+        <p>Extract text from an image URL using OCR.</p>
         <div class="input-group mb-3">
             <input type="text" class="form-control" id="imageUrl" placeholder="Enter public image URL">
             <div class="input-group-append">
@@ -51,11 +48,9 @@
                 <button class="btn btn-secondary" id="clearBtn">Clear</button>
             </div>
         </div>
-
         <div class="loader" id="loader"></div>
         <div id="output" class="mt-4"></div>
     </div>
-
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const convertBtn = document.getElementById("convertBtn");
