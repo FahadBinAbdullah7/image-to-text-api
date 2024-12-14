@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to Text Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            text-align: center;
+        }
+        input, button {
+            margin: 10px 0;
+            padding: 10px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image to Text Converter</h1>
+    <p>Enter the image URL below to extract text:</p>
+    <input type="text" id="imageUrl" placeholder="Enter image URL">
+    <button onclick="extractText()">Extract Text</button>
+    <textarea id="output" readonly placeholder="Extracted text will appear here..."></textarea>
+
+    <script>
+        async function extractText() {
+            const imageUrl = document.getElementById("imageUrl").value;
+            const output = document.getElementById("output");
+
+            if (!imageUrl) {
+                alert("Please enter an image URL.");
+                return;
+            }
+
+            output.value = "Processing...";
+
+            try {
+                const response = await fetch("https://your-vercel-backend-url.vercel.app/extract-text", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ imageUrl }),
+                });
+
+                const data = await response.json();
+                if (data.text) {
+                    output.value = data.text;
+                } else {
+                    output.value = "Error: " + (data.error || "Unable to extract text.");
+                }
+            } catch (error) {
+                console.error(error);
+                output.value = "An error occurred. Please try again.";
+            }
+        }
+    </script>
+</body>
+</html>
