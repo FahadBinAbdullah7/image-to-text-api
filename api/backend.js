@@ -1,12 +1,11 @@
 const axios = require("axios");
 const Tesseract = require("tesseract.js");
 
-module.exports = async (req, res) => {
-    if (req.method !== "POST") {
-        res.setHeader("Allow", "POST");
-        return res.status(405).json({ error: "Method Not Allowed" });
-    }
+const express = require("express");
+const app = express();
+app.use(express.json());
 
+app.post("/api/extract", async (req, res) => {
     const { imageUrl } = req.body;
 
     if (!imageUrl || !imageUrl.startsWith("http")) {
@@ -14,7 +13,7 @@ module.exports = async (req, res) => {
     }
 
     try {
-        // Fetch the image
+        // Fetch the image as a buffer
         const response = await axios.get(imageUrl, { responseType: "arraybuffer" });
         const imageBuffer = Buffer.from(response.data, "binary");
 
@@ -26,6 +25,12 @@ module.exports = async (req, res) => {
         return res.status(200).json({ text: data.text });
     } catch (error) {
         console.error("Error during OCR:", error.message);
-        return res.status(500).json({ error: "Internal Server Error" });
+        return res.status(500).json({ error: "Internal Server Error. Could not process the image." });
     }
-};
+});
+
+// Start the server
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});
