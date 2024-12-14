@@ -6,19 +6,19 @@ module.exports = async (req, res) => {
         if (req.method === "POST") {
             const { imageUrl } = req.body;
 
-            // Validate image URL
+            // Validate the image URL
             if (!imageUrl || !imageUrl.startsWith("http")) {
                 return res.status(400).json({ error: "Invalid or missing image URL." });
             }
 
             console.log("Received imageUrl:", imageUrl);
 
-            // Fetch image from the provided URL
+            // Fetch image from the URL
             const response = await axios.get(imageUrl, { responseType: "arraybuffer" });
             const imageBuffer = Buffer.from(response.data, "binary");
             console.log("Image successfully fetched.");
 
-            // Process OCR using Tesseract.js
+            // Perform OCR using Tesseract.js
             const result = await Tesseract.recognize(imageBuffer, "eng", {
                 logger: (info) => console.log("Tesseract progress:", info),
             });
