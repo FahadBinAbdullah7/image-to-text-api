@@ -1,14 +1,3 @@
-{
-  "name": "image-to-text-api",
-  "version": "1.0.0",
-  "description": "API for extracting text from images using Tesseract.js",
-  "main": "index.js",
-  "scripts": {
+"scripts": {
     "start": "node index.js"
-  },
-  "dependencies": {
-    "axios": "^1.4.0",
-    "express": "^4.18.2",
-    "tesseract.js": "^2.1.1"
-  }
 }
