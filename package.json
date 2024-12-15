@@ -1,3 +1,25 @@
-"scripts": {
+{
+  "name": "image-to-text-api",
+  "version": "1.0.0",
+  "description": "An OCR API to extract text from images using Tesseract.js.",
+  "main": "index.js",
+  "scripts": {
     "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "node-fetch": "^2.6.7",
+    "tesseract.js": "^2.1.1"
+  },
+  "engines": {
+    "node": "16.x"
+  },
+  "keywords": [
+    "OCR",
+    "Tesseract",
+    "API",
+    "Image to Text"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
 }
