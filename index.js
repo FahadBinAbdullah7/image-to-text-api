@@ -1,41 +1,53 @@
 const express = require("express");
 const Tesseract = require("tesseract.js");
-const axios = require("axios");
-const { URL } = require("url");
+const fetch = require("node-fetch");
 
 const app = express();
 app.use(express.json());
 
-// Endpoint for OCR
+// Root route
+app.get("/", (req, res) => {
+    res.send("OCR API is running. Use the /extract-text endpoint.");
+});
+
+// OCR route
 app.post("/extract-text", async (req, res) => {
     const { imageUrl } = req.body;
 
     if (!imageUrl) {
-        return res.status(400).json({ error: "Image URL is required" });
+        return res.status(400).json({ error: "Please provide an imageUrl in the request body." });
     }
 
     try {
-        // Validate the URL
-        new URL(imageUrl);
-
         // Fetch the image
-        const response = await axios.get(imageUrl, { responseType: "arraybuffer" });
-        const imageBuffer = Buffer.from(response.data, "binary");
+        const response = await fetch(imageUrl);
+        if (!response.ok) {
+            throw new Error("Unable to fetch the image. Check the URL.");
+        }
+
+        const buffer = await response.buffer();
 
         // Perform OCR
-        const { data: { text } } = await Tesseract.recognize(imageBuffer, "eng", {
-            logger: info => console.log(info) // Log progress (optional)
-        });
-
-        return res.status(200).json({ text });
+        Tesseract.recognize(buffer, "eng", {
+            logger: (info) => console.log(info), // Optional: Log progress
+        })
+            .then(({ data: { text } }) => {
+                res.json({ text });
+            })
+            .catch((err) => {
+                console.error(err);
+                res.status(500).json({ error: "Error processing the image for OCR." });
+            });
     } catch (error) {
-        console.error("Error:", error.message);
-        return res.status(500).json({ error: "Failed to process the image." });
+        console.error(error);
+        res.status(500).json({ error: "Failed to fetch the image. Ensure the URL is correct." });
     }
 });
 
-// Server setup
+// Start server locally (for testing)
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+module.exports = app;
