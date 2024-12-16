@@ -1,12 +1,16 @@
 const express = require("express");
 const Tesseract = require("tesseract.js");
 const axios = require("axios");
-const { URL } = require("url");
 
 const app = express();
 app.use(express.json());
 
-// Endpoint for OCR
+// Health check route for testing
+app.get("/", (req, res) => {
+    res.send("API is working!");
+});
+
+// OCR Route
 app.post("/extract-text", async (req, res) => {
     const { imageUrl } = req.body;
 
@@ -15,16 +19,11 @@ app.post("/extract-text", async (req, res) => {
     }
 
     try {
-        // Validate the URL
-        new URL(imageUrl);
-
-        // Fetch the image
         const response = await axios.get(imageUrl, { responseType: "arraybuffer" });
         const imageBuffer = Buffer.from(response.data, "binary");
 
-        // Perform OCR
         const { data: { text } } = await Tesseract.recognize(imageBuffer, "eng", {
-            logger: info => console.log(info) // Log progress (optional)
+            logger: info => console.log(info) // Optional: Log progress
         });
 
         return res.status(200).json({ text });
@@ -34,8 +33,10 @@ app.post("/extract-text", async (req, res) => {
     }
 });
 
-// Server setup
+// Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+module.exports = app;
