@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to Text Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+
+        #output {
+            white-space: pre-wrap;
+            background: #f1f1f1;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            overflow: auto;
+            max-height: 300px;
+        }
+
+        .loader {
+            display: none;
+            margin: 20px auto;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Image to Text Converter</h1>
+    <p>Extract text from an image URL using this OCR tool.</p>
+
+    <div>
+        <input type="text" id="imageUrl" placeholder="Enter Image URL" style="width: 100%; padding: 10px;">
+        <button id="convertBtn" style="margin-top: 10px; padding: 10px 20px;">Convert</button>
+    </div>
+
+    <div class="loader" id="loader"></div>
+
+    <div id="output" class="mt-4"></div>
+
+    <script>
+        document.getElementById("convertBtn").addEventListener("click", () => {
+            const imageUrl = document.getElementById("imageUrl").value;
+            const loader = document.getElementById("loader");
+            const output = document.getElementById("output");
+
+            if (!imageUrl) {
+                alert("Please enter an image URL!");
+                return;
+            }
+
+            loader.style.display = "block"; // Show loader
+            output.textContent = ""; // Clear output
+
+            // Send request to API
+            fetch("/extract-text", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ imageUrl })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loader.style.display = "none"; // Hide loader
+                if (data.text) {
+                    output.textContent = data.text; // Display extracted text
+                } else {
+                    output.textContent = data.error || "An error occurred.";
+                }
+            })
+            .catch(error => {
+                loader.style.display = "none"; // Hide loader
+                output.textContent = "An error occurred.";
+                console.error("Error:", error);
+            });
+        });
+    </script>
+</body>
+</html>
