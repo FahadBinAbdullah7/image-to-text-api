@@ -1,37 +1,36 @@
 const express = require("express");
-const Tesseract = require("tesseract.js");
 const axios = require("axios");
-const cors = require("cors"); // Added for CORS
+const cors = require("cors");
+const Tesseract = require("tesseract.js");
 
 const app = express();
-app.use(express.json());
-app.use(cors()); // Enable CORS for all routes
-app.use(express.static("public")); // Serve static files
 
-// Serve the frontend
-app.get("/", (req, res) => {
-    res.sendFile(__dirname + "/public/index.html");
-});
+// Middleware setup
+app.use(cors()); // Allow cross-origin requests
+app.use(express.json()); // Parse JSON bodies
 
-// OCR API Endpoint
+// POST route for OCR
 app.post("/extract-text", async (req, res) => {
     const { imageUrl } = req.body;
 
     if (!imageUrl) {
+        console.log("No image URL provided");
         return res.status(400).json({ error: "Image URL is required" });
     }
 
     try {
-        // Fetch image from the provided URL
+        console.log("Fetching image from URL:", imageUrl);
+        // Fetch the image as a buffer
         const response = await axios.get(imageUrl, { responseType: "arraybuffer" });
         const imageBuffer = Buffer.from(response.data, "binary");
 
-        // Perform OCR using Tesseract.js
+        console.log("Running OCR...");
+        // Run Tesseract OCR on the image buffer
         const { data: { text } } = await Tesseract.recognize(imageBuffer, "eng", {
-            logger: info => console.log(info) // Optional: Log progress
+            logger: info => console.log(info) // Optional: Log OCR progress
         });
 
-        // Return extracted text
+        console.log("OCR text extracted:", text);
         return res.status(200).json({ text });
     } catch (error) {
         console.error("Error during OCR:", error.message);
@@ -39,10 +38,8 @@ app.post("/extract-text", async (req, res) => {
     }
 });
 
-// Start the server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+// Server setup
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
 });
-
-module.exports = app;
