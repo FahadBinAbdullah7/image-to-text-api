@@ -81,7 +81,7 @@
             })
             .catch(error => {
                 loader.style.display = "none"; // Hide loader
-                output.textContent = "An error occurred.";
+                output.textContent = `An error occurred: ${error.message}`;
                 console.error("Error:", error);
             });
         });
